@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Регистрация пользователя"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:layout_marginTop="24dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <EditText
+        android:id="@+id/edName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Имя"
+        android:inputType="textPersonName"
+        android:layout_marginTop="24dp"
+        app:layout_constraintTop_toBottomOf="@id/tvTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <EditText
+        android:id="@+id/edSName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Фамилия"
+        android:inputType="textPersonName"
+        android:layout_marginTop="12dp"
+        app:layout_constraintTop_toBottomOf="@id/edName"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <EditText
+        android:id="@+id/edMail"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Email"
+        android:inputType="textEmailAddress"
+        android:layout_marginTop="12dp"
+        app:layout_constraintTop_toBottomOf="@id/edSName"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <EditText
+        android:id="@+id/edPhone"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Телефон"
+        android:inputType="phone"
+        android:layout_marginTop="12dp"
+        app:layout_constraintTop_toBottomOf="@id/edMail"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <EditText
+        android:id="@+id/edAge"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Возраст"
+        android:inputType="number"
+        android:layout_marginTop="12dp"
+        app:layout_constraintTop_toBottomOf="@id/edPhone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <EditText
+        android:id="@+id/edCity"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Город"
+        android:inputType="text"
+        android:layout_marginTop="12dp"
+        app:layout_constraintTop_toBottomOf="@id/edAge"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <Button
+        android:id="@+id/btnSave"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Сохранить в Firebase"
+        android:layout_marginTop="24dp"
+        app:layout_constraintTop_toBottomOf="@id/edCity"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <Button
+        android:id="@+id/btnRead"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Загрузить последние данные"
+        android:layout_marginTop="12dp"
+        app:layout_constraintTop_toBottomOf="@id/btnSave"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/tvOutput"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:text="Данные из Firebase будут отображены здесь..."
+        android:padding="12dp"
+        android:background="#F0F0F0"
+        android:gravity="center"
+        android:textSize="14sp"
+        android:layout_marginTop="12dp"
+        app:layout_constraintTop_toBottomOf="@id/btnRead"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
