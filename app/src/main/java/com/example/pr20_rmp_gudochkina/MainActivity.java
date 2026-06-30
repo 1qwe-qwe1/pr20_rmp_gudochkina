@@ -5,7 +5,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -14,25 +13,33 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.database.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private EditText edName, edSName, edMail, edPhone, edAge, edCity;
 
-    private Button btnSave, btnRead;
+    private Button btnSave;
 
-    private TextView tvOutput;
+    private RecyclerView recyclerView;
+    private UserAdapter userAdapter;
+    private List<User> userList;
 
     private DatabaseReference myDataBase;
     private final String USER_KEY = "Users";
-
     private static final String TAG = "FirebaseDB";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,7 +55,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         myDataBase = FirebaseDatabase.getInstance().getReference(USER_KEY);
 
         btnSave.setOnClickListener(this);
-        btnRead.setOnClickListener(this);
+        setupFirebaseListener();
     }
     private void initViews() {
         edName = findViewById(R.id.edName);
@@ -59,17 +66,44 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         edCity = findViewById(R.id.edCity);
 
         btnSave = findViewById(R.id.btnSave);
-        btnRead = findViewById(R.id.btnRead);
+        recyclerView = findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        userList = new ArrayList<>();
+        userAdapter = new UserAdapter(userList);
+        recyclerView.setAdapter(userAdapter);
+    }
 
-        tvOutput = findViewById(R.id.tvOutput);
+    private void setupFirebaseListener() {
+        myDataBase.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot snapshot, String previousChildName) {
+                User user = snapshot.getValue(User.class);
+                if (user != null) {
+                    userAdapter.addUser(user);
+                    Log.d(TAG, getString(R.string.log_user_added, user.toString()));
+                }
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot snapshot) {}
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e(TAG, getString(R.string.log_firebase_listener_error), error.toException());
+            }
+        });
     }
 
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.btnSave) {
             saveDataToFirebase();
-        } else if (v.getId() == R.id.btnRead) {
-            readDataFromFirebase();
         }
     }
 
@@ -81,59 +115,86 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         String ageStr = edAge.getText().toString().trim();
         String city = edCity.getText().toString().trim();
 
+        // Валидация всех полей
+        String errorMessage = validateInput(name, surname, email, phone, ageStr, city);
+        if (errorMessage != null) {
+            Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        int age = Integer.parseInt(ageStr);
+        User newUser = new User(name, surname, email, phone, age, city);
+
+        myDataBase.push().setValue(newUser)
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(MainActivity.this, R.string.success_save, Toast.LENGTH_SHORT).show();
+                    clearInputFields();
+                    Log.d(TAG, getString(R.string.log_user_saved, newUser.toString()));
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(MainActivity.this,
+                            getString(R.string.error_save, e.getMessage()),
+                            Toast.LENGTH_SHORT).show();
+                    Log.e(TAG, getString(R.string.log_save_data_error), e);
+                });
+    }
+
+    private String validateInput(String name, String surname, String email, String phone, String ageStr, String city) {
         if (name.isEmpty() || surname.isEmpty() || email.isEmpty() ||
                 phone.isEmpty() || ageStr.isEmpty() || city.isEmpty()) {
-            Toast.makeText(this, "Пожалуйста, заполните все поля!", Toast.LENGTH_SHORT).show();
-            return;
+            return getString(R.string.error_fill_all_fields);
+        }
+
+        if (isInvalidText(name)) {
+            return getString(R.string.error_invalid_name);
+        }
+
+        if (isInvalidText(surname)) {
+            return getString(R.string.error_invalid_surname);
+        }
+
+        if (!isValidEmail(email)) {
+            return getString(R.string.error_invalid_email);
+        }
+
+        if (!isValidPhone(phone)) {
+            return getString(R.string.error_invalid_phone);
         }
 
         int age;
         try {
             age = Integer.parseInt(ageStr);
         } catch (NumberFormatException e) {
-            Toast.makeText(this, "Возраст должен быть числом!", Toast.LENGTH_SHORT).show();
-            return;
+            return getString(R.string.error_age_not_number);
         }
 
-        User newUser = new User(name, surname, email, phone, age, city);
+        if (!isValidAge(age)) {
+            return getString(R.string.error_invalid_age);
+        }
 
-        myDataBase.push().setValue(newUser)
-                .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(MainActivity.this, "Данные успешно сохранены в Firebase!", Toast.LENGTH_SHORT).show();
-                    clearInputFields();
-                    Log.d(TAG, "Данные пользователя сохранены: " + newUser.toString());
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(MainActivity.this, "Ошибка сохранения: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    Log.e(TAG, "Ошибка сохранения данных", e);
-                });
+        if (isInvalidText(city)) {
+            return getString(R.string.error_invalid_city);
+        }
+
+        return null;
     }
 
-    private void readDataFromFirebase() {
-        tvOutput.setText("Загрузка данных из Firebase...");
+    private boolean isInvalidText(String text) {
+        String trimmed = text.trim();
+        return trimmed.length() < 2 || trimmed.length() > 35
+                || !trimmed.matches("^[A-Za-zА-Яа-яЁё\\s\\-]+$");
+    }
 
-        myDataBase.limitToLast(1).get().addOnCompleteListener(task -> {
-            if (task.isSuccessful() && task.getResult() != null) {
-                DataSnapshot dataSnapshot = task.getResult();
+    private boolean isValidEmail(String email) {
+        return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
+    }
 
-                if (dataSnapshot.exists()) {
-                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                        User user = snapshot.getValue(User.class);
-                        if (user != null) {
-                            tvOutput.setText(user.toString());
-                        } else {
-                            tvOutput.setText("Не удалось прочитать данные пользователя.");
-                        }
-                    }
-                } else {
-                    tvOutput.setText("В базе данных Firebase нет записей.\nНажмите 'Сохранить' чтобы добавить.");
-                }
-            } else {
-                tvOutput.setText("Ошибка загрузки данных: " + task.getException() +
-                        "\nПроверьте подключение к Firebase.");
-                Log.e(TAG, "Ошибка чтения данных", task.getException());
-            }
-        });
+    private boolean isValidPhone(String phone) {
+        return android.util.Patterns.PHONE.matcher(phone).matches();
+    }
+
+    private boolean isValidAge(int age) {
+        return age >= 1 && age <= 120;
     }
 
     private void clearInputFields() {

@@ -1,3 +1,37 @@
 <resources>
     <string name="app_name">pr20_rmp_gudochkina</string>
+
+    <string name="user_registration">Регистрация пользователя</string>
+    <string name="name">Имя</string>
+    <string name="surname">Фамилия</string>
+    <string name="email">Email</string>
+    <string name="phone_number">Телефон</string>
+    <string name="age">Возраст</string>
+    <string name="city">Город</string>
+
+    <string name="save">Сохранить в Firebase</string>
+
+    <string name="format_name">Имя: %s</string>
+    <string name="format_surname">Фамилия: %s</string>
+    <string name="format_email">Email: %s</string>
+    <string name="format_phone">Телефон: %s</string>
+    <string name="format_age">Возраст: %d</string>
+    <string name="format_city">Город: %s</string>
+
+    <string name="error_fill_all_fields">Пожалуйста, заполните все поля!</string>
+    <string name="error_invalid_name">Имя должно содержать от 2 до 35 символов и состоять из букв!</string>
+    <string name="error_invalid_surname">Фамилия должна содержать от 2 до 35 символов и состоять из букв!</string>
+    <string name="error_invalid_email">Введите корректный email адрес!</string>
+    <string name="error_invalid_phone">Введите корректный номер телефона!</string>
+    <string name="error_age_not_number">Возраст должен быть числом!</string>
+    <string name="error_invalid_age">Возраст должен быть от 1 до 120 лет!</string>
+    <string name="error_invalid_city">Город должен содержать от 2 до 35 символов и состоять из букв!</string>
+
+    <string name="success_save">Данные успешно сохранены в Firebase!</string>
+    <string name="error_save">Ошибка сохранения: %s</string>
+
+    <string name="log_user_added">Пользователь добавлен в список: %s</string>
+    <string name="log_firebase_listener_error">Ошибка слушателя Firebase</string>
+    <string name="log_user_saved">Данные пользователя сохранены: %s</string>
+    <string name="log_save_data_error">Ошибка сохранения данных</string>
 </resources>
